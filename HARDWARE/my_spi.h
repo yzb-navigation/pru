@@ -13,16 +13,26 @@
 #include "omapl138addr.h"
 #include "soc_OMAPL138.h"
 
-#define SPI_CSN_H()		GPIOPinWrite(SOC_GPIO_0_REGS, 101, GPIO_PIN_HIGH)
-#define SPI_CSN_L()		GPIOPinWrite(SOC_GPIO_0_REGS, 101, GPIO_PIN_LOW)
 
 
 
-#define SPI_SCK(a)  if (a) GPIOPinWrite(SOC_GPIO_0_REGS, 12, GPIO_PIN_HIGH);  else GPIOPinWrite(SOC_GPIO_0_REGS, 12, GPIO_PIN_HIGH);
+volatile register unsigned int __R30;
+volatile register unsigned int __R31;
 
-#define SPI_MOSI(a) if (a) GPIOPinWrite(SOC_GPIO_0_REGS, 15, GPIO_PIN_HIGH);  else GPIOPinWrite(SOC_GPIO_0_REGS, 15, GPIO_PIN_HIGH);
 
-#define SPI_MISO_IN GPIOPinRead(SOC_GPIO_0_REGS,16);
+//PRU0_R30[8]   CS
+#define SPI_CSN_H()		__R30 = __R30  |  0x00000100
+#define SPI_CSN_L()		__R30 = __R30 & 0xFFFFFEFF
+
+
+//PRU0_R30[12]     SCLK
+#define SPI_SCK(a)  if (a) __R30 = __R30  |  0x00001000;  else __R30 = __R30 & 0xFFFFEFFF;
+
+//PRU0_R30[10]  MOSI
+#define SPI_MOSI(a)  if (a) __R30 = __R30  |  0x00000400;  else __R30 = __R30 & 0xFFFFFBFF;
+
+//PRU0_R31[11] MISO
+#define SPI_MISO_IN ((__R31>>11) | 0x01)
 
 
 void MY_SPI_DELAY(void);

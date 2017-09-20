@@ -48,15 +48,27 @@ void ADIS16488_IRQ_INIT(void)
 *版本 ：
 *历史版本 ：
 ***********************************************************************************************/
-
+short temp;
 void ADIS_16488_INIT(void)
 {
 	//首先初始化SPI
 	MY_SPI_INIT();
 
-
+	//读16488ID
+	temp = ADIS_16488_Read_ID();
 
 }
-
-
+//读单字节
+short ADIS_16488_Read_ID(void)
+{
+	short ADIS_ID;
+	SPI_CSN_L();
+	MY_SPI_ReadWriteByte(0x7E);
+	MY_SPI_ReadWriteByte(0x00);
+	ADIS_ID = MY_SPI_ReadWriteByte(0x7E);
+	ADIS_ID = ADIS_ID<<8;
+	ADIS_ID = ADIS_ID | MY_SPI_ReadWriteByte(0x00);
+	SPI_CSN_H();
+	return ADIS_ID;
+}
 
